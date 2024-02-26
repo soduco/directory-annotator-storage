@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "directory-annotator-storage"
+version = "0.1.0"
+description = "Server Flask for the project Soduco"
+authors = ["LRDE <contact@lre.epita.fr>"]
+
+[tool.poetry.dependencies]
+python = ">=3.7,<3.11"
+Flask = "2.1.1"
+Flask-Cors = ">=3.0"
+python-dotenv = "0.19.1"
+numpy = "1.21.2"
+filelock = "3.3.0"
+pikepdf = "^4.3.1"
+
+[tool.poetry.dev-dependencies]
+tox = ">=3.24"
+pytest = "^6.2.1"
+flake8 = "^4.0.1"
+
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

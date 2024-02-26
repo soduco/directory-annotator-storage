@@ -1,0 +1,8 @@
+# Python cache
+__pycache__/
+# VS Code configuration
+.vscode/
+# tox cache
+.tox/
+# Do not commit local configuration
+settings.cfg

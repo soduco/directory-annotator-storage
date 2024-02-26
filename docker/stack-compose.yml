@@ -1,0 +1,53 @@
+# Compose file for Docker Swarm use
+
+# Use the following script to deploy:
+# #!/bin/bash         
+# docker login gitlab-registry.lre.epita.fr/soduco/directory-annotator-storage
+# docker stack deploy --with-registry-auth -c soduco-storage-compose.yml soduco-storage
+
+
+version: '3.8'
+services:
+  storage:
+    # We will have to perform a "docker login gitlab-registry.lre.epita.fr/soduco/directory-annotator-storage"
+    # before we can access this image.
+    # credentials (RO):
+    # - login: docker
+    # - password: glpat-o2QU35YvL7q4vTpRgUxq
+    image: gitlab-registry.lre.epita.fr/soduco/directory-annotator-storage/storageapp:latest
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+        # for now, we have only one node with storage available (will need some ceph or glusterfs distributed FS lated)
+        # create label on appropriate node with "docker node update --label-add soduco-storage=available jcomp01"
+          - "node.labels.soduco-storage == available"
+    ports:
+      - "8010:8000"
+    # Must include all variables here, no support for .env files in swarm mode
+    environment:
+      - SODUCO_SETTINGS=/app/settings.cfg
+      - SCRIPT_NAME=/soduco/directory-annotator/storage
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+    volumes:
+      - type: bind
+        source: /work/soduco/directories
+        target: "/data/directories"
+        read_only: true
+      - type: bind
+        source: ./settings.cfg
+        target: "/app/settings.cfg"
+      - type: bind
+        source: /work/soduco/annotations
+        target: "/data/annotations"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/soduco/directory-annotator/storage/health_check"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+
+secrets:
+  auth_tokens:
+    external: true
+# use `docker secret create auth_tokens auth_tokens` with the appropriate file to create the secret for the swarm
